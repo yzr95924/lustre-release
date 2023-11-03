@@ -76,6 +76,9 @@ static const char *const libcfs_debug_masks[] = LIBCFS_DEBUG_MASKS_NAMES;
 #define DEBUG_CTL_NAME		"debug"
 #define DUMP_KERNEL_CTL_NAME	"dump_kernel"
 
+#define MAX_DATE_BUF_SIZE 32
+#define MAX_TIME_BUF_SIZE 64
+
 /*
  * Open the parameter file "debug" which controls the debugging
  * flags used to determine what information ends up in the lustre
@@ -271,6 +274,21 @@ static int cmp_rec(const void *p1, const void *p2)
 	return 1;
 }
 
+static void convert_unixtime_to_date(char *time_stamp_buf, __u32 sec, __u64 usec)
+{
+    char date_buf[MAX_DATE_BUF_SIZE] = { 0 };
+    struct tm tmp_time;
+    struct tm *time_info = NULL;
+    time_t raw_sec = (time_t)sec;
+
+    time_info = localtime_r(&raw_sec, &tmp_time);
+    strftime(date_buf, MAX_DATE_BUF_SIZE, "%Y-%m-%d %H:%M:%S", time_info);
+    snprintf(time_stamp_buf, MAX_TIME_BUF_SIZE, "%s.%06llu", date_buf,
+        (unsigned long long)usec);
+
+    return;
+}
+
 static void print_rec(struct dbg_line ***linevp, int used, int fdout)
 {
 	struct dbg_line **linev = *linevp;
@@ -281,17 +299,19 @@ static void print_rec(struct dbg_line ***linevp, int used, int fdout)
 		struct dbg_line		*line = linev[i];
 		struct ptldebug_header	*hdr = line->hdr;
 		char			 out[4097];
+        char    time_stamp_buf[MAX_TIME_BUF_SIZE] = { 0 };
 		char			*buf = out;
 		int			 bytes;
 		ssize_t			 bytes_written;
+        convert_unixtime_to_date(time_stamp_buf, hdr->ph_sec, hdr->ph_usec);
 
 		bytes = scnprintf(out, sizeof(out),
-				"%08x:%08x:%u.%u%s:%u.%06llu:%u:%u:%u:"
+				"%08x:%08x:%u.%u%s:%s:%u:%u:%u:"
 				"(%s:%u:%s()) %s",
 				hdr->ph_subsys, hdr->ph_mask,
 				hdr->ph_cpu_id, hdr->ph_type,
 				hdr->ph_flags & PH_FLAG_FIRST_RECORD ? "F" : "",
-				hdr->ph_sec, (unsigned long long)hdr->ph_usec,
+                time_stamp_buf,
 				hdr->ph_stack, hdr->ph_pid, hdr->ph_extern_pid,
 				line->file, hdr->ph_line_num, line->fn,
 				line->text);
