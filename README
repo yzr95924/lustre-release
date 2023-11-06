@@ -31,3 +31,18 @@ Lustre Coding Guidelines.  To do this, run in the top-level lustre/ tree:
     cd .git/hooks
     ln -s ../../contrib/git-hooks/{prepare-,}commit-msg ./
     cd ../..
+
+Zuoru:
+```json
+    "C_Cpp.default.includePath": [
+        "/usr/src/kernels/4.18.0-477.10.1.el8_lustre.x86_64/arch/x86/include/generated/",
+        "/usr/src/kernels/4.18.0-477.10.1.el8_lustre.x86_64/arch/x86/include",
+        "/usr/src/kernels/4.18.0-477.10.1.el8_lustre.x86_64/include",
+        "${workspaceFolder}/**"
+    ],
+    "C_Cpp.default.defines": [
+        "__GNUC__",
+        "__KERNEL__=1",
+        "MODULE=1"
+    ],
+```
