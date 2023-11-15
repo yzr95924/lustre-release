@@ -203,6 +203,8 @@ static inline int cfs_cdebug_show(unsigned int mask, unsigned int subsystem)
 #define CNETERR(format, a...)       CDEBUG_LIMIT(D_NETERROR, format, ## a)
 #define CEMERG(format, ...)         CDEBUG_LIMIT(D_EMERG, format, ## __VA_ARGS__)
 
+#define ZUORU_CONSOLE(format, ...) \
+    CDEBUG(D_CONSOLE | D_ERROR | D_OTHER, format, ## __VA_ARGS__)
 #define LCONSOLE(mask, format, ...) CDEBUG(D_CONSOLE | (mask), format, ## __VA_ARGS__)
 #define LCONSOLE_INFO(format, ...)  CDEBUG_LIMIT(D_CONSOLE, format, ## __VA_ARGS__)
 #define LCONSOLE_WARN(format, ...)  CDEBUG_LIMIT(D_CONSOLE | D_WARNING, format, ## __VA_ARGS__)

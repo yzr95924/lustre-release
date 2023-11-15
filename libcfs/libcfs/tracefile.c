@@ -340,7 +340,14 @@ static void cfs_vprint_to_console(struct ptldebug_header *hdr, int mask,
 		if (mask & D_EMERG)
 			pr_emerg("%sError: %pV", prefix, vaf);
 		else if (mask & D_ERROR)
-			pr_err("%sError: %pV", prefix, vaf);
+            if (mask & D_OTHER) {
+                // updated by Zuoru: with more log info
+                pr_info("%sZuoru: %d:%d:(%s:%d:%s()) %pV", prefix,
+			    hdr->ph_pid, hdr->ph_extern_pid, file,
+			    hdr->ph_line_num, fn, vaf);
+            } else {
+			    pr_err("%sError: %pV", prefix, vaf);
+            }
 		else if (mask & D_WARNING)
 			pr_warn("%s: %pV", prefix, vaf);
 		else if (mask & libcfs_printk)
