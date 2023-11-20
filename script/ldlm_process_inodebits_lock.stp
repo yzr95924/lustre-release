@@ -1,0 +1,6 @@
+probe module("ptlrpc").function("ldlm_process_inodebits_lock")
+{
+    printf("-------------------------------\n")
+    print_backtrace();
+    printf("-------------------------------\n")
+}
