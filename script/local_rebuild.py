@@ -5,7 +5,7 @@ llmount_script="llmount.sh"
 llmount_clean_script="llmountcleanup.sh"
 number_of_cpu = multiprocessing.cpu_count()
 
-path_option = ["/usr/lib64/lustre/tests"]
+path_option = ["/usr/lib64/lustre/tests", "/usr/lib/lustre/tests/"]
 
 def StopLocalTest(valid_option):
     print("stop local test")
