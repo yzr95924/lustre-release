@@ -1,3 +1,4 @@
+fuser -k /mnt/l_lfs/
 umount -t lustre -a -l
 
 mount -t lustre /dev/nvme0n2 /mnt/mgt

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+fuser -k /mnt/l_lfs/
 umount -l /mnt/l_lfs
 echo "Umount Lustre client done"
 
@@ -13,3 +14,6 @@ echo "Umount MGT done"
 umount -l /mnt/ost0
 umount -l /mnt/ost1
 echo "Umount OST done"
+
+lustre_rmmod
+echo "Unload Lustre"
