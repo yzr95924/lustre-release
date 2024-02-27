@@ -18,7 +18,7 @@ from my_py import setup
 from my_py import os_util
 from my_py import cmd_handler
 
-_g_is_dry_run = False
+_g_is_dry_run = True
 _g_is_debug = False
 _g_logger = logger.get_logger(name=_g_proc_name)
 _g_cmd_handler = cmd_handler.CmdHandler(handler_name=_g_proc_name)
@@ -51,28 +51,76 @@ def usage():
     print("-f (optional): reformat mode")
 
 
-def format_ost(index: int, dev_path: str, mount_opt=""):
+def format_ost_mdt(tgt_type: str, index: int, dev_path: str, mount_opt=""):
+    """format ost/mdt dev and mkdir mount point
+
+    Args:
+        tgt_type (str): mdt/ost
+        index (int): index number
+        dev_path (str): dev path
+        mount_opt (str, optional): mount options. Defaults to "".
+
+    Returns:
+        ret: ret code
+    """
     global _g_logger, _g_cmd_handler
+    if (tgt_type not in ["ost", "mdt"]):
+        _g_logger.error("format tgt_type invalid: {}", tgt_type)
+        return errno.EINVAL
+
     mgs_nid = os_util.Network.get_ip_address() + "@tcp"
     cmd = _g_mkfs_cmd + " " + "--fsname=" + _g_lustre_fs_name + " " \
-        + "--ost" + " " + "--servicenode=" + mgs_nid + " " \
+        + "--" + tgt_type + " " \
+        + "--servicenode=" + mgs_nid + " " \
         + "--mgsnode=" + mgs_nid + " " \
         + "--reformat" + " " \
         + "--index=" + str(index) + " " \
-        + "--mkfsoptions=" + mount_opt + " " \
+        + "--mkfsoptions=" + "\"" + mount_opt + "\"" + " " \
         + dev_path
     _, _, ret = _g_cmd_handler.run_shell(cmd=cmd,
                                          is_dry_run=_g_is_dry_run,
-                                         is_debug=_g_is_debug)
-    pass
-
-def format_mdt(index: int, dev_path: str, mount_opt=""):
-    mgs_nid = os_util.Network.get_ip_address() + "@tcp"
-    pass
+                                         is_debug=_g_is_debug,
+                                         is_verbose=True)
+    if (ret != 0):
+        _g_logger.error("format {}: {}, {} failed: {}".format(
+            tgt_type, index, dev_path,
+            os_util.translate_linux_err_code(ret)))
+    else:
+        _g_logger.info("format {}: {}, {} successful".format(
+            tgt_type, index, dev_path))
+    return ret
 
 def format_mgt(dev_path: str, mount_opt=""):
+    """format mgt dev and mkdir mount point
+
+    Args:
+        dev_path (str): dev path
+        mount_opt (str, optional): mount options. Defaults to "".
+
+    Returns:
+        ret: ret code
+    """
+    global _g_logger, _g_cmd_handler
     mgs_nid = os_util.Network.get_ip_address() + "@tcp"
-    pass
+
+    cmd = _g_mkfs_cmd + " " + "--fsname=" + _g_lustre_fs_name + " " \
+        + "--mgs" + " " \
+        + "--servicenode=" + mgs_nid + " " \
+        + "--reformat" + " " \
+        + "--mkfsoptions=" + "\"" + mount_opt + "\"" + " " \
+        + dev_path
+
+    _, _, ret = _g_cmd_handler.run_shell(cmd=cmd,
+                                         is_dry_run=_g_is_dry_run,
+                                         is_debug=_g_is_debug,
+                                         is_verbose=True)
+
+    if (ret != 0):
+        _g_logger.error("format mgt: {}, failed: {}".format(
+            dev_path, os_util.translate_linux_err_code(ret)))
+    else:
+        _g_logger.info("format mgt: {} successful".format(dev_path))
+    return ret
 
 def mount_umount_format_ost(is_umount: bool):
     pass
