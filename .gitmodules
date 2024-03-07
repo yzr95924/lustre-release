@@ -1,5 +1,0 @@
-[submodule "common_include"]
-	path = common_include
-	url = git@github.com:yzr95924/common_include.git
-	# url = https://github.com/yzr95924/common_include.git
-	branch = master
